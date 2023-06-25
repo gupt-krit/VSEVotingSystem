@@ -8,17 +8,23 @@ def getvoterinfo():
     return render_template("voterinfo.html")
 
 
-@views.route("/")
-def index():
-    return redirect(url_for("views.voterinfo"))
+@views.route("/start_voting")
+def start_voting():
+    return redirect(url_for("vote_views.headboy"))
+
+
+@views.route("/headboy")
+def headboy():
+    return render_template("base.html")
 
 
 # POST_METHODS
-@views.route("/posts/startvote", methods=["POST"])
+@views.route("/post/voterinfo", methods=["POST"])
 def start_vote():
     if request.method == "POST":
         voter = dict()
-        voter["name"] = request.form["VoterName"]
-        voter["class"] = request.form["VoterClass"]
-        voter["section"] = request.form["VoterSection"]
-    return ""
+        # Do something with this!
+        voter["name"] = request.form["name"]
+        voter["class"] = request.form["class"]
+        voter["section"] = request.form["section"]
+    return redirect(url_for("vote_views.start_voting"))
