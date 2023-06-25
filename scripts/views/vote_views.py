@@ -1,16 +1,16 @@
 from flask import Blueprint, redirect, render_template, url_for, request
 
-views = Blueprint("views", __name__)
+views = Blueprint("vote_views", __name__)
 
 
-@views.route("/start")
-def start():
-    return render_template("start_page.html")
+@views.route("/voterinfo")
+def getvoterinfo():
+    return render_template("voterinfo.html")
 
 
 @views.route("/")
-def home():
-    return ""  # redirect(url_for("/start"))
+def index():
+    return redirect(url_for("views.voterinfo"))
 
 
 # POST_METHODS
