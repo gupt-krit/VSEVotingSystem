@@ -5,7 +5,7 @@ from pathlib import Path
 path = Path(os.getcwd())
 sys.path.append(path)
 print(path)
-# if __name__ == '__main__':
-server = create_app()
+if __name__ == "__main__":
+    server = create_app()
 
-server.run()
+    server.run(debug=True)
