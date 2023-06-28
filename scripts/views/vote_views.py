@@ -1,8 +1,12 @@
-from flask import Blueprint, redirect, render_template, url_for, request
-
+from flask import Blueprint, redirect, render_template, url_for, request,current_app
+import requests
+from scripts.config import DataStore
+from scripts.funcs import load_imgs
+from scripts.objects import Voter
 views = Blueprint("vote_views", __name__)
-
-
+Voters = DataStore.Voters
+routes = DataStore.CANDIDATE_LIST.keys()
+print(routes)
 @views.route("/voterinfo")
 def getvoterinfo():
     return render_template("voterinfo.html")
@@ -10,21 +14,22 @@ def getvoterinfo():
 
 @views.route("/start_voting")
 def start_voting():
-    return redirect(url_for("vote_views.headboy"))
+    return redirect(url_for("vote_views.vote_for",post="headboy"))
 
 
-@views.route("/headboy")
-def headboy():
-    return render_template("base.html")
-
+@views.route("/vote_for/<post>")
+def vote_for(post):
+    print("This is the post: "+post)
+    print(load_imgs(post))
+    return render_template("vote.html",post=post,imgs=load_imgs(post))
 
 # POST_METHODS
 @views.route("/post/voterinfo", methods=["POST"])
 def start_vote():
     if request.method == "POST":
-        voter = dict()
-        # Do something with this!
-        voter["name"] = request.form["name"]
-        voter["class"] = request.form["class"]
-        voter["section"] = request.form["section"]
+        name = request.form["name"]
+        # Mismatch between grade and class as class is reserved keyword in Python
+        grade = request.form["class"]
+        section = request.form["section"]
+        Voters.append(Voter(name,grade,section))
     return redirect(url_for("vote_views.start_voting"))
