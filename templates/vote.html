@@ -1,4 +1,14 @@
 {% extends "base.html"%}
+{% block head %}
+<style>
+    label {
+        display: block;
+    }
+    input {
+        display: block;
+    }
+</style>
+{%endblock%}
 {% block title %} Vote: {{post}} {%endblock%}
 {%block body %}
 <h1>Cast vote for {{post}}</h1>
