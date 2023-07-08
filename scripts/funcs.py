@@ -8,3 +8,21 @@ def load_imgs(post):
 def load_json(path:str):
     file = open(path,'r')
     return json.load(file)
+def save_response(response:dict,posts,path):
+    from . import RAW_RESULT
+
+    try:
+        standings = json.load(open(path,'r'))
+    except json.decoder.JSONDecodeError:
+        json.dump(RAW_RESULT,open(path,'w'),indent=5)
+        standings=json.load(open(path,'r'))
+    for post in posts:
+        if post in response:
+            for cand in standings[post].keys():
+                if cand == response[post]:
+                    standings[post][cand]+=1
+        else:
+            continue
+
+    file_ = open(path,'w')
+    json.dump(standings,file_,indent=5)
