@@ -1,7 +1,6 @@
 from flask import Flask, render_template, redirect, url_for, request
 from .views import vote_views,image_views
 from .funcs import load_json
-#from .config import DataStore
 
 
 def create_app():
