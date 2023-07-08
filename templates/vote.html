@@ -1,46 +1,85 @@
-{% extends "base.html"%}
+{% extends "base.html" %}
 {% block head %}
 <style>
-    label {
-        display: block;
+    .column-display {
+        display: flex;
+        flex-direction: column;
     }
-    input {
-        display: block;
+
+    .post-display {
+        display: flex;
+        flex-direction: row;
+        flex-grow: 2;
+        border: 2px black;
+        margin: 10px;
+        justify-content: center;
+    }
+
+    .three-post-row {
+        display: flex;
+        flex-direction: row;
+        flex-grow: 1;
+    }
+    .selected-candidate {
+        background:lightgreen;
     }
 </style>
-{%endblock%}
-{% block title %} Vote: {{post}} {%endblock%}
-{%block body %}
-<h1>Cast vote for {{post}}</h1>
+{% endblock head %}
 
+{% block title %} Cast your vote! {% endblock title %}
 
-{% for name in names%}
-<label for="{{name}}">{{name}}</label>
-<img src="/image/{{post}}/{{name}}" alt="..." name="{{name}}"">
-<input type="radio" name="radio-{{name}}" id="radio-{{name}}">
+{% block body %}
+<div class="column-display">
+    {% for posts in data %}
+    <div class="three-post-row">
+        {% for post in posts %}
+        <div class="post-display" id="post-display-{{post}}">
+            <h1>{{post.upper()}}</h1><br>
 
-{%endfor%}
-<input type="submit" onclick="saveChoice()">
+            {% for name in candidates[post] %}
+            <div class="candidate-display" id="cand-{{post}}-{{name}}">
+                <h2>{{name}}</h2>
+                <img src="/image/{{post}}/{{name}}" alt="">
+                <input type="radio" id="radio-{{name}}-{{post}}" name="candidate-choice-radio"
+                    onclick=disableObject("post-display-{{post}}","radio-{{name}}-{{post}}","cand-{{post}}-{{name}}",["{{post}}","{{name}}"])>
+            </div>
+            {% endfor %}
+
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+    <input type="submit" name="submit-btn" value="Submit Response" onclick="submitResponse()">
+</div>
 
 <script>
-    function saveChoice(){
-    for(let radio_btn_id in radio_ids){
-        radio_btn = document.getElementById(radio_ids[radio_btn_id]);
 
-        if (radio_btn.checked) { 
+    function disableObject(div_id,radio_id,cand_id,response) {
+        radio_obj = document.getElementById(radio_id);
+        radio_id.selected = true;
 
-            name = radio_ids[radio_btn_id].replace("radio-","");
-            localStorage.setItem("{{post}}",name);
-            const response = fetch("http://127.0.0.1:5000/vote/nextroute/{{post}}").then((res => res.json())).then(d => {
-            window.location.replace("http://localhost:5000/vote/vote_for/"+d)
-});
-            console.log(response)
-        }
+        selected_candidates[response[0]] = response[1]
+        
+        cand_obj = document.getElementById(cand_id);
+        cand_obj.classList.add('selected-candidate')
+        
+        objects = document.getElementById(div_id).getElementsByTagName('*');
+        for (var obj of objects) {obj.disabled=true;}
     }
 
-}
+    async function submitResponse() {
+        const res = await fetch('http://127.0.0.1:5000/vote/post/submitvote', {
+            method:"POST",
+            body:JSON.stringify(selected_candidates),
+            'Acess-Control-Allow-Orgin':'*',
+            headers:{
+                "Content-Type":"application/json",
+            }
+        }).then(window.location.href = "http://127.0.0.1:5000/vote/completed")
+        
+    }
 
-    const radio_ids = new Array({% for name in names %} "radio-{{name}}", {%endfor%});
-
+    var selected_candidates = {};
 </script>
-{%endblock%}
+{% endblock %}

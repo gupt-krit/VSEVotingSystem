@@ -1,13 +1,12 @@
-from flask import Blueprint, redirect, jsonify,render_template, url_for, request,send_file
+from flask import Blueprint, redirect, jsonify,render_template, url_for, request,send_file,Response
 from flask_cors import CORS, cross_origin
-import requests,os,pathlib
-from scripts.config import DataStore
-from scripts.funcs import load_imgs
+from scripts import Voters,CANDIDATES,RESULTS_PATH
+from scripts.funcs import save_response, split_list
 from scripts.objects import Voter
 views = Blueprint("vote_views", __name__)
 CORS(views)
-Voters = DataStore.Voters
-routes = list(DataStore.CANDIDATES.keys())
+Voters = Voters
+POSTS = list(CANDIDATES.keys())
 
 @views.route("/voterinfo")
 def getvoterinfo():
@@ -16,7 +15,13 @@ def getvoterinfo():
 
 @views.route("/start_voting")
 def start_voting():
-    return redirect(url_for("vote_views.vote_for",post="headboy"))
+    return redirect(url_for("vote_views.vote"))
+
+@views.route('/vote')
+def vote():
+    posts =list(CANDIDATES.keys())
+    data = list(split_list(posts,3))
+    return render_template('vote.html',posts=POSTS,data=data,candidates=CANDIDATES)
 
 @views.route("/vote_for/<post>")
 def vote_for(post):
@@ -44,9 +49,20 @@ def start_vote():
         # Mismatch between grade and class as class is reserved keyword in Python
         grade = request.form["class"]
         section = request.form["section"]
+        admin_number = request.form['admin_number']
         Voters.append(Voter(name,grade,section))
-    return redirect(url_for("vote_views.start_voting"))
+    return redirect(url_for("vote_views.vote"))
 
 @views.route("/post/submitvote",methods=["POST"])
-def sumbit_vote(post):
-    return ""
+def sumbit_vote():
+    data=dict(request.json)
+    response = dict()
+    for post in list(CANDIDATES.keys()):
+        if post in data:
+            response[post] = data[post]
+            save_response(response=response,posts=list(CANDIDATES.keys()),path=RESULTS_PATH / "results.json")
+        else:
+            response[post]=''
+    return redirect(url_for('vote_views.show_complete'))
+    # except Exception as e:
+    #     return Response(response="Failed!",status=400,mimetype="text/plain")

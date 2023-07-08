@@ -8,6 +8,9 @@ def load_imgs(post):
 def load_json(path:str):
     file = open(path,'r')
     return json.load(file)
+def split_list(l,n):
+    for i in range(0,len(l),n):
+        yield l[i:i+n]
 def save_response(response:dict,posts,path):
     from . import RAW_RESULT
 
