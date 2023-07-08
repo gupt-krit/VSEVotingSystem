@@ -20,19 +20,21 @@ def start_voting():
 
 @views.route("/vote_for/<post>")
 def vote_for(post):
-    #print("This is the post: "+post)
-    #print(load_imgs(post))
     try:
-        names = DataStore.CANDIDATES[post]
+        names = CANDIDATES[post]
     except KeyError:
         return "<h1>This post does not exist!</h1>"
-    return render_template("vote.html",post=post,names=names)
+    return render_template("vote_post.html",post=post,names=names)
 
 @views.route('/nextroute/<current_post>')
 def next_route(current_post):
-    if current_post in routes:
-       curr_index = routes.index(current_post)
-       return jsonify(routes[curr_index+1])
+    if current_post in POSTS:
+       curr_index = POSTS.index(current_post)
+       return jsonify(POSTS[curr_index+1])
+
+@views.route("/completed")
+def show_complete():
+    return render_template("completed.html")
 
 # POST_METHODS
 @views.route("/post/voterinfo", methods=["POST"])

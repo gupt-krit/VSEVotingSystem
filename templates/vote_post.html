@@ -1,0 +1,46 @@
+{% extends "base.html"%}
+{% block head %}
+<style>
+    label {
+        display: block;
+    }
+    input {
+        display: block;
+    }
+</style>
+{%endblock%}
+{% block title %} Vote: {{post}} {%endblock%}
+{%block body %}
+<h1>Cast vote for {{post}}</h1>
+
+
+{% for name in names%}
+<label for="{{name}}">{{name}}</label>
+<img src="/image/{{post}}/{{name}}" alt="..." name="{{name}}">
+<input type="radio" name="radio-{{name}}" id="radio-{{name}}">
+
+{%endfor%}
+<input type="submit" onclick="saveChoice()">
+
+<script>
+    function saveChoice(){
+    for(let radio_btn_id in radio_ids){
+        radio_btn = document.getElementById(radio_ids[radio_btn_id]);
+
+        if (radio_btn.checked) { 
+
+            name = radio_ids[radio_btn_id].replace("radio-","");
+            localStorage.setItem("{{post}}",name);
+            const response = fetch("http://127.0.0.1:5000/vote/nextroute/{{post}}").then((res => res.json())).then(d => {
+            window.location.replace("http://localhost:5000/vote/vote_for/"+d)
+});
+            console.log(response)
+        }
+    }
+
+}
+
+    const radio_ids = new Array({% for name in names %} "radio-{{name}}", {%endfor%});
+
+</script>
+{%endblock%}
